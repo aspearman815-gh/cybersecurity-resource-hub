@@ -4,6 +4,8 @@ Welcome to the **Cybersecurity Resource Hub** — a curated collection of cybers
 
 This repository is designed to help students, early-career professionals, and anyone exploring cybersecurity pathways find reliable information in one place.
 
+Resource will be updated Bi-Weekly!
+
 ---
 
 ## 🔗 Quick Navigation
