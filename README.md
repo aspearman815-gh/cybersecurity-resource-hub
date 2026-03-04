@@ -32,3 +32,40 @@ This repository is designed to help students, early-career professionals, and an
 ---
 
 ## 📁 Repository Structure
+
+
+cybersecurity-resource-hub/
+│
+├── careers/
+│   ├── Cybersecurity-roles.md
+│   └── Internships.md
+│
+├── certifications/
+│   ├── Entry-Level-Certifications.md
+│   ├── Mid-Level-Certifications.md
+│   └── Free-Trainings-&-Certifications.md
+│
+├── events/
+│   └── upcoming-events.md
+│
+├── resources/
+│   └── Technology-Clubs.md
+│
+└── README.md
+
+---
+
+## 🤝 Contributing
+
+Have an event, resource, or certification suggestion?  
+Feel free to open an issue or submit a pull request!
+
+---
+
+## 👩‍💻 Maintained By
+**Amara Spearman**  
+Cybersecurity Analyst Associate
+
+---
+
+### ⭐ If this repository helps you, consider starring it!
