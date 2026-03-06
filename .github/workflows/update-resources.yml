@@ -13,93 +13,59 @@ concurrency:
   group: update-cyber-resources
   cancel-in-progress: false
 
-# --- Tunables you can edit without touching the script ---
 env:
-  # LinkedIn: default to LINKS ONLY (compliant). Set to "true" to try guest-endpoint collection (undocumented; may break).
+  # ===== Source controls =====
   ENABLE_LINKEDIN_SCRAPE: "false"
-  LI_LOCATION: "United States"        # e.g., "Atlanta, Georgia, United States"
-  LI_REMOTE_ONLY: "true"              # true: remote-only | false: include onsite/hybrid
-  LI_TIME_RANGE: "r604800"            # r86400=24h, r604800=7d, r2592000=30d
+  LI_LOCATION: "United States"
+  LI_REMOTE_ONLY: "true"
+  LI_TIME_RANGE: "r604800"
 
-  # Indeed (RSS) queries
+  # ===== Indeed RSS queries =====
   INDEED_ENTRY_QUERY: '("cybersecurity" OR "security analyst" OR SOC) ("entry level" OR junior OR "analyst I" OR associate)'
   INDEED_INTERN_QUERY: '("cybersecurity" OR "information security") (intern OR internship)'
-  INDEED_LOCATION: "Remote"           # e.g., "Atlanta, GA" or "Remote"
+  INDEED_LOCATION: "Remote"
 
 jobs:
   scrape-and-update:
     runs-on: ubuntu-latest
 
     steps:
+
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          # Ensures we check out the ref that triggered the workflow
-          fetch-depth: 1
 
       - name: Debug working directory
         run: |
-          echo "---- PWD ----"
-          pwd
-          echo "---- Root listing ----"
+          echo "PWD: $(pwd)"
           ls -la
-          echo "---- .github/workflows ----"
-          ls -la .github/workflows || true
-          echo "---- scripts ----"
+          echo "Scripts directory:"
           ls -la scripts || true
+          echo "Workflows directory:"
+          ls -la .github/workflows || true
 
-      - name: Verify requirements.txt presence and content
-        id: check-req
-        run: |
-          REQ="$GITHUB_WORKSPACE/requirements.txt"
-          echo "Looking for: $REQ"
-          if [ -f "$REQ" ]; then
-            echo "has=true" >> "$GITHUB_OUTPUT"
-            echo "---- requirements.txt (numbered) ----"
-            nl -ba "$REQ"
-          else
-            echo "has=false" >> "$GITHUB_OUTPUT"
-            echo "::warning::requirements.txt not found at repo root. We'll proceed WITHOUT pip cache."
-          fi
-
-      # Use pip cache only when requirements.txt exists
-      - name: Set up Python (with cache)
-        if: steps.check-req.outputs.has == 'true'
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
           cache: "pip"
-          cache-dependency-path: ${{ github.workspace }}/requirements.txt
+          cache-dependency-path: "**/requirements.txt"
 
-      # Fallback: no cache (prevents the 'No file matched' error)
-      - name: Set up Python (no cache)
-        if: steps.check-req.outputs.has != 'true'
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
+      - name: Verify requirements file
+        run: |
+          echo "Looking for requirements.txt..."
+          find . -name "requirements.txt"
 
       - name: Install dependencies
         run: |
-          if [ -f "requirements.txt" ]; then
-            python -m pip install --upgrade pip
-            pip install -r requirements.txt
-          else
-            echo "::warning::Skipping -r requirements.txt because the file is missing."
-            python -m pip install --upgrade pip
-            # Install minimal deps needed by the script as a fallback:
-            pip install requests beautifulsoup4 python-dateutil lxml
-          fi
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
       - name: Run scraper
         run: |
-          if [ ! -f "scripts/update_resources.py" ]; then
-            echo "::error::scripts/update_resources.py not found. Ensure the file path is scripts/update_resources.py."
-            exit 1
-          fi
           python scripts/update_resources.py
 
       - name: Commit changes (if any)
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "chore: auto-update cyber jobs (LinkedIn + Indeed)"
-          # branch: ${{ github.ref_name }}  # optional; action usually detects the current branch
+          branch: ${{ github.ref_name }}
