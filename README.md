@@ -16,7 +16,13 @@ Resource will be updated Bi-Weekly!
 ---
 
 ### 💼 **Career Resources**
-- careers
+
+- [Cybersecurity Roles](careers/Cybersecurity-roles.md)
+- [Indeed: Entry-Level Pathways](careers/Indeed-Entry-Level.md)
+- [Indeed: Internships](careers/Indeed-Internships.md)
+- [LinkedIn: Entry-Level Pathways](careers/LinkedIn-Entry-Level.md)
+- [LinkedIn: Internships](careers/LinkedIn-Internships.md)
+
 
 ---
 
