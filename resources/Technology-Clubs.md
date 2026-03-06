@@ -11,3 +11,11 @@
 - **OWASP Atlanta**  
   Open Web Application Security Project - Atlanta  
   https://owasp.org/www-chapter-atlanta/
+
+- **WiCYS**
+  Women in Cybersecurity
+  https://www.wicys.org/
+
+- **RTC**
+  Rewriting the Code
+  https://rewritingthecode.org/
