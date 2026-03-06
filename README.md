@@ -44,8 +44,12 @@ Resource will be updated Bi-Weekly!
 cybersecurity-resource-hub/
 │
 ├── careers/
-│   ├── Cybersecurity-roles.md
-│   └── Internships.md
+│   
+│  ├─ Cybersecurity-roles.md
+│  ├─ Indeed-Entry-Level.md
+│  ├─ Indeed-Internships.md
+│  ├─ LinkedIn-Entry-Level.md
+│  └─ LinkedIn-Internships.md
 │
 ├── certifications/
 │   ├── Entry-Level-Certifications.md
