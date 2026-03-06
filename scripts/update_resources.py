@@ -8,7 +8,7 @@ import traceback
 import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
-from dateutil import parser as dtparser
+from dateutil import parser as dtparser  # kept for potential future date parsing
 
 # ---------------------------
 # Paths & Config
@@ -20,7 +20,8 @@ DATA_DIR = os.path.join(BASE_DIR, ".data")
 DATA_FILE = os.path.join(DATA_DIR, "seen.json")
 
 HEADERS = {
-    "User-Agent": "Mozilla/5.0 (ResourceBot; +https://github.com/)"
+    "User-Agent": "Mozilla/5.0 (ResourceBot; +https://github.com/)",
+    "Accept": "application/rss+xml, application/atom+xml, application/xml;q=0.9, */*;q=0.8",
 }
 
 CYBER_KEYWORDS = [
@@ -55,7 +56,7 @@ def load_seen():
 
 def save_seen(data):
     with open(DATA_FILE, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2)
+        json.dump(data, f, indent=2, ensure_ascii=False)
 
 def contains_cyber(text: str) -> bool:
     t = (text or "").lower()
@@ -109,7 +110,8 @@ def parse_rss(url: str):
     for parser_name in ("lxml-xml", "xml", "html.parser"):
         try:
             soup = BeautifulSoup(r.content, parser_name)
-            break
+            if soup is not None:
+                break
         except Exception:
             soup = None
     if soup is None:
@@ -118,10 +120,14 @@ def parse_rss(url: str):
 
     nodes = soup.find_all(["item", "entry"])
     for n in nodes:
-        title = (n.title.text if n and n.find("title") else "").strip()
+        title = ""
+        t_tag = n.find("title")
+        if t_tag:
+            title = (t_tag.text or "").strip()
 
+        # Handle both <link href="..."/> and <link>https://...</link>
         link = ""
-        link_tag = n.find("link") if n else None
+        link_tag = n.find("link")
         if link_tag:
             link = (link_tag.get("href") or link_tag.text or "").strip()
 
@@ -320,4 +326,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-``
