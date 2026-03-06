@@ -13,33 +13,46 @@ concurrency:
   group: update-cyber-resources
   cancel-in-progress: false
 
+# ---------- You can tune these without editing the Python script ----------
 env:
-  # ===== Source controls =====
-  # LinkedIn: default to LINKS ONLY (compliant). Flip to "true" to attempt guest-endpoint collection.
-  ENABLE_LINKEDIN_SCRAPE: "false"        # READ NOTE in the Python file before enabling.
-  LI_LOCATION: "United States"            # e.g., "Atlanta, Georgia, United States"
-  LI_REMOTE_ONLY: "true"                  # "true" for remote-only searches; "false" to include onsite/hybrid
-  LI_TIME_RANGE: "r604800"                # freshness: r86400=24h, r604800=7 days, r2592000=30 days
+  # LinkedIn: default to LINKS ONLY (compliant with policy). Set to "true" to try guest-endpoint collection (undocumented; may break).
+  ENABLE_LINKEDIN_SCRAPE: "false"
+  LI_LOCATION: "United States"        # e.g., "Atlanta, Georgia, United States"
+  LI_REMOTE_ONLY: "true"              # true: remote-only | false: include onsite/hybrid
+  LI_TIME_RANGE: "r604800"            # r86400=24h, r604800=7d, r2592000=30d
 
-  # Indeed RSS: tune queries/locations
+  # Indeed (RSS) queries
   INDEED_ENTRY_QUERY: '("cybersecurity" OR "security analyst" OR SOC) ("entry level" OR junior OR "analyst I" OR associate)'
   INDEED_INTERN_QUERY: '("cybersecurity" OR "information security") (intern OR internship)'
-  INDEED_LOCATION: "Remote"               # "Remote" or a city/state/country (e.g., "Atlanta, GA")
+  INDEED_LOCATION: "Remote"           # e.g., "Atlanta, GA" or "Remote"
 
 jobs:
   scrape-and-update:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Debug working directory
+      - name: Verify repository layout & requirements.txt
         run: |
-          echo "PWD: $(pwd)"
+          echo "---- PWD ----"
+          pwd
+          echo "---- Root listing ----"
           ls -la
-          ls -la scripts || true
+          echo "---- .github/workflows ----"
           ls -la .github/workflows || true
+          echo "---- scripts ----"
+          ls -la scripts || true
+
+          echo "---- Verify requirements.txt exists in repo root ----"
+          if [ ! -f "requirements.txt" ]; then
+            echo "::error::requirements.txt not found in repo root. Add it at /requirements.txt (not in subfolders)."
+            exit 1
+          fi
+
+          echo "---- requirements.txt content ----"
+          nl -ba requirements.txt
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -54,11 +67,15 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run scraper
-        run: python scripts/update_resources.py
+        run: |
+          if [ ! -f "scripts/update_resources.py" ]; then
+            echo "::error::scripts/update_resources.py not found. Ensure the file path is scripts/update_resources.py."
+            exit 1
+          fi
+          python scripts/update_resources.py
 
       - name: Commit changes (if any)
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "chore: auto-update cyber jobs (LinkedIn + Indeed)"
-          # branch: ${{ github.ref_name }}  # optional
-
+          # branch: ${{ github.ref_name }}  # usually not needed; the action detects current branch
