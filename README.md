@@ -16,8 +16,7 @@ Resource will be updated Bi-Weekly!
 ---
 
 ### 💼 **Career Resources**
-- [Cybersecurity Roles](careers/Cybersecurity-roles.md)
-- [Internships](careers/Internships.md)
+- careers
 
 ---
 
