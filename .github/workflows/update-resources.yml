@@ -13,6 +13,19 @@ concurrency:
   group: update-cyber-resources
   cancel-in-progress: false
 
+env:
+  # ===== Source controls =====
+  # LinkedIn: default to LINKS ONLY (compliant). Flip to "true" to attempt guest-endpoint collection.
+  ENABLE_LINKEDIN_SCRAPE: "false"        # READ NOTE in the Python file before enabling.
+  LI_LOCATION: "United States"            # e.g., "Atlanta, Georgia, United States"
+  LI_REMOTE_ONLY: "true"                  # "true" for remote-only searches; "false" to include onsite/hybrid
+  LI_TIME_RANGE: "r604800"                # freshness: r86400=24h, r604800=7 days, r2592000=30 days
+
+  # Indeed RSS: tune queries/locations
+  INDEED_ENTRY_QUERY: '("cybersecurity" OR "security analyst" OR SOC) ("entry level" OR junior OR "analyst I" OR associate)'
+  INDEED_INTERN_QUERY: '("cybersecurity" OR "information security") (intern OR internship)'
+  INDEED_LOCATION: "Remote"               # "Remote" or a city/state/country (e.g., "Atlanta, GA")
+
 jobs:
   scrape-and-update:
     runs-on: ubuntu-latest
@@ -32,12 +45,13 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-
+          cache: "pip"
+          cache-dependency-path: "requirements.txt"
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install requests beautifulsoup4 python-dateutil lxml
+          pip install -r requirements.txt
 
       - name: Run scraper
         run: python scripts/update_resources.py
@@ -45,6 +59,6 @@ jobs:
       - name: Commit changes (if any)
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "chore: auto-update cyber resources"
-          # Let the action detect the current/default branch automatically
-          # branch: ${{ github.ref_name }}
+          commit_message: "chore: auto-update cyber jobs (LinkedIn + Indeed)"
+          # branch: ${{ github.ref_name }}  # optional
+``
